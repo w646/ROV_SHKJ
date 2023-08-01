@@ -17,7 +17,7 @@ openocd：[下载链接](https://github.com/xpack-dev-tools/openocd-xpack/releas
 ## 2.食用
 _win环境下需要安装Git_
 ```bash
-git clone git@github.com:Hao-Lion-ZJU/ROV-SHKJ.git
+git clone git@github.com:Hao-Lion-ZJU/ROV_SHKJ.git
 mkdir build -p && cd build
 #windows环境下需要指定构建工具，否则win下cmake会自动帮你选择nmake
 #然而这不是我们期望的，所以需要 -G "Unix Makefiles"指定，Linux环境下不需要
