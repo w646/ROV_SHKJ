@@ -2,13 +2,13 @@
 ___
 ## 1.前言
 本项目采用cmake + make + arm-none-eabi-gcc 交叉编译工具链开发，下载程序到单片机使用openocd
-`请事先下载好对应环境`
-_Linux环境安装_
+`请事先下载好对应环境`</br>
+_Linux环境安装_</br>
 ```bash
 sudo apt-get install arm-none-eabi-gcc
 sudo apt-get install openocd
 ```
-_Win环境安装_
+_Win环境安装_</br>
 交叉编译器：进入ARM官网下载[下载链接](https://developer.arm.com/downloads/-/gnu-rm)
 openocd：[下载链接](https://github.com/xpack-dev-tools/openocd-xpack/releases/)
 整个windows环境下工具链开发可以参考文章：[参考文章](https://zhuanlan.zhihu.com/p/576972892)
