@@ -9,9 +9,9 @@ sudo apt-get install arm-none-eabi-gcc
 sudo apt-get install openocd
 ```
 _Win环境安装_</br>
-交叉编译器：进入ARM官网下载[下载链接](https://developer.arm.com/downloads/-/gnu-rm)
-openocd：[下载链接](https://github.com/xpack-dev-tools/openocd-xpack/releases/)
-整个windows环境下工具链开发可以参考文章：[参考文章](https://zhuanlan.zhihu.com/p/576972892)
+交叉编译器：进入ARM官网下载[下载链接](https://developer.arm.com/downloads/-/gnu-rm)</br>
+openocd：[下载链接](https://github.com/xpack-dev-tools/openocd-xpack/releases/)</br>
+整个windows环境下工具链开发可以参考文章：[参考文章](https://zhuanlan.zhihu.com/p/576972892)</br>
 `项目使用make，所以需要安装mingw，无需安装Ninja作为构建工具`
 
 ## 2.食用
