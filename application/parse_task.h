@@ -2,11 +2,11 @@
   ****************************(C) COPYRIGHT 2023 ZJU****************************
   * @file       parse_task.c/h
   * @brief      socket receive data slove.
-  *             锟斤拷位锟斤拷锟斤拷锟斤拷锟铰凤拷锟斤拷锟斤拷锟竭筹拷.        
+  *             上位机数据下发处理线程.        
   * @note       
   * @history
   *  Version    Date            Author          Modification
-  *  V1.0.0     Apr-5-2023     HaoLion(锟斤拷锟斤拷锟斤拷)    1. done
+  *  V1.0.0     Apr-5-2023     HaoLion(郝亮亮)    1. done
   *
   @verbatim
   ==============================================================================
@@ -32,7 +32,7 @@ extern fifo_s_t tcp_fifo;
   * @retval         none
   */
 /**
-  * @brief          鎺ユ敹鏁版嵁瑙ｆ瀽浠诲姟
+  * @brief          接收数据解析任务
   * @param[in]      pvParameters: NULL
   * @retval         none
   */
