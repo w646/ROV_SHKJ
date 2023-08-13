@@ -43,7 +43,7 @@ void usart2_tx_dma_init(void)
         __HAL_DMA_DISABLE(&hdma_usart2_tx);
     }
 
-    ((DMA_Stream_TypeDef   *)hdma_usart2_tx.Instance)->PAR = (uint32_t) & (USART1->TDR);
+    ((DMA_Stream_TypeDef   *)hdma_usart2_tx.Instance)->PAR = (uint32_t) & (USART2->TDR);
     ((DMA_Stream_TypeDef   *)hdma_usart2_tx.Instance)->M0AR = (uint32_t)(NULL);
     ((DMA_Stream_TypeDef   *)hdma_usart2_tx.Instance)->NDTR = 0;
 

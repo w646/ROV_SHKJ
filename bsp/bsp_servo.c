@@ -44,7 +44,7 @@ void uart7_tx_dma_init(void)
         __HAL_DMA_DISABLE(&hdma_uart7_tx);
     }
 
-    ((DMA_Stream_TypeDef   *)hdma_uart7_tx.Instance)->PAR = (uint32_t) & (USART1->TDR);
+    ((DMA_Stream_TypeDef   *)hdma_uart7_tx.Instance)->PAR = (uint32_t) & (UART7->TDR);
     ((DMA_Stream_TypeDef   *)hdma_uart7_tx.Instance)->M0AR = (uint32_t)(NULL);
     ((DMA_Stream_TypeDef   *)hdma_uart7_tx.Instance)->NDTR = 0;
 
