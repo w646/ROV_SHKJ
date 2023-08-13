@@ -1,7 +1,7 @@
 /** 
  *****************************Copyright (c) 2023  ZJU****************************
- * @file      : bsp_gps.c
- * @brief     : GPS设备485串口DMA驱动
+ * @file      : bsp_am.c
+ * @brief     : 高度计设备485串口DMA板级支持包
  * @history   :
  *  Version     Date            Author          Note
  *  V1.0.0    2023-08-01       Hao Lion        1. <note>
@@ -15,11 +15,11 @@
  * @endverbatim :
  *****************************Copyright (c) 2023  ZJU****************************
  */
-#include "bsp_gps.h"
+#include "bsp_am.h"
 #include "main.h"
 
-#define GPS_DMA_TX_ISR   DMA_HISR_TCIF7
-#define GPS_DMA_RX_ISR   DMA_LISR_TCIF2  
+#define AM_DMA_TX_ISR   DMA_HISR_TCIF7
+#define AM_DMA_RX_ISR   DMA_LISR_TCIF2  
 
 //快速收发不要用HAL库，太慢，直接操作寄存器
 #define RE_DE_TX() {GPIOA->BSRR=GPIO_PIN_9;}                        //拉高电平
@@ -51,7 +51,7 @@ void usart1_init(uint8_t *rx1_buf, uint8_t *rx2_buf, uint16_t dma_buf_num)
         __HAL_DMA_DISABLE(&hdma_usart1_rx);
     }
     //清除接收中断标志物位
-    __HAL_DMA_CLEAR_FLAG(&hdma_usart1_rx, GPS_DMA_RX_ISR);
+    __HAL_DMA_CLEAR_FLAG(&hdma_usart1_rx, AM_DMA_RX_ISR);
 
     ((DMA_Stream_TypeDef   *)hdma_usart1_rx.Instance)->PAR = (uint32_t) & (USART1->RDR);
     //memory buffer 1
@@ -98,7 +98,7 @@ void usart1_tx_dma_enable(uint8_t *data, uint16_t len)
         __HAL_DMA_DISABLE(&hdma_usart1_tx);
     }
 
-    __HAL_DMA_CLEAR_FLAG(&hdma_usart1_tx, GPS_DMA_TX_ISR);
+    __HAL_DMA_CLEAR_FLAG(&hdma_usart1_tx, AM_DMA_TX_ISR);
 
     ((DMA_Stream_TypeDef   *)hdma_usart1_tx.Instance)->M0AR = (uint32_t)(data);
     __HAL_DMA_SET_COUNTER(&hdma_usart1_tx, len);

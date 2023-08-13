@@ -4,42 +4,58 @@
 #include "struct_typedef.h"
 
 
-#define REC_TEXT_MAX_SIZE         					249											//Êı¾İ¶Î×î´óµÄ³¤¶È
-#define REC_PROTOCOL_HEADER_SIZE    sizeof(frame_header_struct_t)		//Ö¡Í·³¤¶È
-#define HEADER_SOF 													0xA5										//¹Ì¶¨ÆğÊ¼×Ö·û
-#define REC_PROTOCOL_FRAME_MAX_SIZE          256    								//ÉÏ´«Êı¾İ×î´óµÄ³¤¶È									  									
-#define REC_PROTOCOL_CRC16_SIZE          			2     								//CRC16Ğ£Ñé	
-#define REC_HEADER_CRC_LEN										7											//Í·²¿ºÍCRC16µÄ³¤¶È
+#define REC_TEXT_MAX_SIZE         					255											//æœ€å¤§æ•°æ®é•¿åº¦
+#define REC_PROTOCOL_HEADER_SIZE    sizeof(frame_header_struct_t)		//Ö¡æ•´ä¸ªå¸§å¤´é•¿åº¦
+#define HEADER_SOF 													0x55AA									//å¸§å¤´
+// #define TAIL_EOF                            0x0D0A                  //å¸§å°¾
+#define REC_PROTOCOL_FRAME_MAX_SIZE          262    								//æ•´å¸§æœ€å¤§é•¿åº¦
+#define REC_HEADER_CRC_LEN										7											//å¤´éƒ¨å’ŒCRC16çš„é•¿åº¦									  									
 
 #pragma pack(push, 1)
 
 typedef enum
 {
-	ROV_STATUS_ID = 0X01,						//ÏÂÎ»»úÉÏ´«Ê±´ú±íROVÔË¶¯×´Ì¬
-	TEXT_MSG_ID = 0X02,						//·¢ËÍÎÄ±¾ÏûÏ¢±ãÓÚµ÷ÊÔ
-}msg_type_t;
+	INFO_REPORT = 0X01,						//ROVä¿¡æ¯ä¸ŠæŠ¥
+  DEVICE_DATA_REPORT = 0X02,		//è®¾å¤‡æ•°æ®ä¸ŠæŠ¥
+  CMD_ISSUED = 0X11,						//å‘½ä»¤ä¸‹å‘
+}cmd_type_t;                    //å‘½ä»¤ç±»å‹
 
 typedef enum
 {
-	MOV_CMD_ID = 0X01,						//ÔË¶¯¿ØÖÆÃüÁî
-	SET_PID_ID = 0X02,						//ÉèÖÃPIDÃüÁî
-}cmd_type_t;
+	BASE_INFO_ID = 0X01,						//åŸºæœ¬ä¿¡æ¯
+}info_cmd_t;                    //ä¿¡æ¯ä¸ŠæŠ¥å­å‘½ä»¤
+
+typedef enum
+{
+  ALIIMETER_ID = 0X01,				        //é«˜åº¦è®¡
+  OBSTACLE_AVOIDANCE_SONAR_ID = 0X02,	//é¿éšœå£°å‘
+  DEPTH_METER_ID = 0X03,				      //æ·±åº¦è®¡
+  IMU_ID = 0X04,						          //IMU
+  GPS_ID = 0X05,						          //GPS
+}device_data_cmd_t;                   //è®¾å¤‡æ•°æ®ä¸ŠæŠ¥å­å‘½ä»¤
+
+typedef enum
+{
+  MOV_CRTL_ID = 0X01,						      //è¿åŠ¨æ§åˆ¶å‘½ä»¤
+  LED_ID = 0X02,							        //LEDæ§åˆ¶å‘½ä»¤
+  SERVO_ID = 0X03,						        //èˆµæœºæ§åˆ¶å‘½ä»¤
+}cmd_issued_cmd_t;                   //å‘½ä»¤ä¸‹å‘å­å‘½ä»¤
 
 typedef  struct
 {
-  uint8_t SOF;
-	uint8_t msg_type;
-  uint16_t data_length;
-  uint8_t CRC8;
+  uint16_t SOF;
+	uint8_t cmd_type;
+  uint8_t data_length;
+  uint8_t sub_cmd;
 } frame_header_struct_t;
 
 typedef enum
 {
-  STEP_HEADER_SOF  = 0,
-	STEP_MSG_TYPE		 = 1,
-  STEP_LENGTH_LOW  = 2,
-  STEP_LENGTH_HIGH = 3,
-  STEP_HEADER_CRC8 = 4,
+  STEP_SOF_LOW     = 0,
+  STEP_SOF_HIGH    = 1,
+	STEP_CMD_TYPE		 = 2,
+  STEP_DATA_LENGTH = 3,
+  STEP_SUB_CMD     = 4,
   STEP_DATA_CRC16  = 5,
 } unpack_tcp_step_e;
 
@@ -47,7 +63,7 @@ typedef enum
 typedef struct
 {
   frame_header_struct_t *p_header;
-  uint16_t       data_len;
+  uint8_t       data_len;
   uint8_t        protocol_packet[REC_PROTOCOL_FRAME_MAX_SIZE];
   unpack_tcp_step_e  unpack_step;
   uint16_t       index;
