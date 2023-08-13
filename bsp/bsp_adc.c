@@ -1,6 +1,6 @@
 #include "bsp_adc.h"
 #include "main.h"
-extern ADC_HandleTypeDef hadc1;
+
 extern ADC_HandleTypeDef hadc3;
 
 volatile uint16_t VREFINT_CAL;

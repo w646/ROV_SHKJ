@@ -20,6 +20,8 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+#include "fifo.h"
+#include "CRC8_CRC16.h"
 #include "detect_task.h"
 #include "protocol.h"
 #include "comunication.h"
@@ -81,5 +83,99 @@ void parse_task(void const * argument)
 
 void tcp_unpack_fifo_data()
 {
-	
+  uint8_t byte = 0;
+	uint16_t sof = HEADER_SOF;
+  unpack_data_t *p_obj = &tcp_unpack_obj;
+
+  while ( fifo_s_used(&tcp_fifo) )
+  {
+    byte = fifo_s_get(&tcp_fifo);
+    switch(p_obj->unpack_step)
+    {
+      case STEP_SOF_LOW:
+      {
+        if(byte == (sof & 0xff))
+        {
+          p_obj->unpack_step = STEP_SOF_HIGH;
+          p_obj->protocol_packet[p_obj->index++] = byte;
+        }
+        else
+        {
+          p_obj->index = 0;
+        }
+      }break;
+			
+			case STEP_SOF_HIGH:
+      {
+        if(byte == (sof >> 8))
+        {
+          p_obj->unpack_step = STEP_CMD_TYPE;
+          p_obj->protocol_packet[p_obj->index++] = byte;
+        }
+        else
+        {
+          p_obj->index = 0;
+        }
+      }break;
+			
+      case STEP_CMD_TYPE:
+      {
+        p_obj->protocol_packet[p_obj->index++] = byte;
+        p_obj->unpack_step = STEP_DATA_LENGTH;
+      }break;
+      
+      case STEP_DATA_LENGTH:
+      {
+        p_obj->data_len = byte;
+        p_obj->protocol_packet[p_obj->index++] = byte;
+
+        if(p_obj->data_len < REC_TEXT_MAX_SIZE)
+        {
+          p_obj->unpack_step = STEP_SUB_CMD;
+        }
+        else
+        {
+          p_obj->unpack_step = STEP_SOF_LOW;
+          p_obj->index = 0;
+        }
+      }break;
+      case STEP_SUB_CMD:
+      {
+        p_obj->protocol_packet[p_obj->index++] = byte;
+
+        if (p_obj->index == REC_PROTOCOL_HEADER_SIZE)
+        {
+            p_obj->unpack_step = STEP_DATA_CRC16;
+        }
+        else
+        {
+          p_obj->unpack_step = STEP_SOF_LOW;
+          p_obj->index = 0;
+        }
+      }break;  
+      
+      case STEP_DATA_CRC16:
+      {
+        if (p_obj->index < (REC_HEADER_CRC_LEN + p_obj->data_len))
+        {
+           p_obj->protocol_packet[p_obj->index++] = byte;  
+        }
+        if (p_obj->index >= (REC_HEADER_CRC_LEN + p_obj->data_len))
+        {
+          p_obj->unpack_step = STEP_SOF_LOW;
+          p_obj->index = 0;
+          if ( verify_CRC16_check_sum(p_obj->protocol_packet, REC_HEADER_CRC_LEN + p_obj->data_len))
+          {
+            receive_data_solve(p_obj->protocol_packet);
+          }
+        }
+      }break;
+
+      default:
+      {
+        p_obj->unpack_step = STEP_SOF_LOW;
+        p_obj->index = 0;
+      }break;
+    }
+  }
 }
