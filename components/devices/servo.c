@@ -26,7 +26,7 @@ uint8_t servo_tx_buffer[12];
 
 typedef enum
 {
-    Ping_id = 0x01,     //检测舵机通讯
+    Ping_id = 0x01,      //检测舵机通讯
     Angle_set_id = 0x08, //舵机角度控制
     Angle_get_id = 0x0A, //舵机角度获取
     Modify_Id_id = 0x04, //修改舵机ID

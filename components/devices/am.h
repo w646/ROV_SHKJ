@@ -1,11 +1,10 @@
-#ifndef _IMU_H_
-#define _IMU_H_
+#ifndef _AM_H_
+#define _AM_H_
 
 #include "struct_typedef.h"
 
-#define IMU_CMD_LENGTH 		6
-#define IMU_FRAME_LENGTH 	80
-#define IMU_DATA_LENGTH 	40
+#define AM_FRAME_LENGTH 	18
+#define AM_DATA_LENGTH 	9
 
 
 /* ----------------------- Data Struct ------------------------------------- */
@@ -13,11 +12,12 @@
 typedef  struct
 {
 	//TODO: 添加IMU数据结构体
-} IMU_data_t;	
+	float height;
+} AM_data_t;	
 
 #pragma pack(pop)
 /* ----------------------- extern Function ----------------------------------- */
-extern const IMU_data_t *get_imu_data_point(void);
-extern void imu_init(void);
+extern const AM_data_t *get_am_data_point(void);
+extern void am_data_solve(volatile const uint8_t *am_frame, AM_data_t *am_data);//高度计解码
 
-#endif /* _IMU_H_ */
+#endif /* _AM_H_ */

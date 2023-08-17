@@ -2,11 +2,11 @@
   ****************************(C) COPYRIGHT 2023 ZJU****************************
   * @file       parse_task.c/h
   * @brief      socket receive data slove.
-  *             ÉÏÎ»»úÊı¾İÏÂ·¢´¦ÀíÏß³Ì.        
+  *             ä¸Šä½æœºæ•°æ®ä¸‹å‘å¤„ç†çº¿ç¨‹.        
   * @note       
   * @history
   *  Version    Date            Author          Modification
-  *  V1.0.0     Apr-5-2023     HaoLion(ºÂÁÁÁÁ)    1. done
+  *  V1.0.0     Apr-5-2023     HaoLion(éƒäº®äº®)    1. done
   *
   @verbatim
   ==============================================================================
@@ -38,9 +38,9 @@ unpack_data_t tcp_unpack_obj;
   * @retval         none
   */
 /**
-  * @brief          Êı¾İ½â°ü
-  * @param[in]      data Ö¡Ô­Ê¼Êı¾İ
-  * @param[in]      framelen Ö¡³¤¶È
+  * @brief          æ•°æ®è§£åŒ…
+  * @param[in]      data å¸§åŸå§‹æ•°æ®
+  * @param[in]      framelen å¸§é•¿åº¦
   * @retval         none
   */
 static void tcp_unpack_fifo_data(void);
@@ -51,7 +51,7 @@ static void tcp_unpack_fifo_data(void);
   * @retval         none
   */
 /**
-  * @brief          ½ÓÊÕÊı¾İ½âÎöÈÎÎñ
+  * @brief          æ¥æ”¶æ•°æ®è§£æä»»åŠ¡
   * @param[in]      pvParameters: NULL
   * @retval         none
   */
@@ -75,9 +75,9 @@ void parse_task(void const * argument)
   * @retval         none
   */
 /**
-  * @brief          Êı¾İ½â°ü
-  * @param[in]      data Ö¡Ô­Ê¼Êı¾İ
-  * @param[in]      framelen Ö¡³¤¶È
+  * @brief          æ•°æ®è§£åŒ…
+  * @param[in]      data å¸§åŸå§‹æ•°æ®
+  * @param[in]      framelen å¸§é•¿åº¦
   * @retval         none
   */
 

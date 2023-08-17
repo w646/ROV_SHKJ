@@ -2,11 +2,11 @@
   ****************************(C) COPYRIGHT 2023 ZJU****************************
   * @file       parse_task.c/h
   * @brief      socket receive data slove.
-  *             ÉÏÎ»»úÊı¾İÏÂ·¢´¦ÀíÏß³Ì.        
+  *             ä¸Šä½æœºæ•°æ®ä¸‹å‘å¤„ç†çº¿ç¨‹.        
   * @note       
   * @history
   *  Version    Date            Author          Modification
-  *  V1.0.0     Apr-5-2023     HaoLion(ºÂÁÁÁÁ)    1. done
+  *  V1.0.0     Apr-5-2023     HaoLion(éƒäº®äº®)    1. done
   *
   @verbatim
   ==============================================================================
@@ -32,7 +32,7 @@ extern fifo_s_t tcp_fifo;
   * @retval         none
   */
 /**
-  * @brief          ½ÓÊÕÊı¾İ½âÎöÈÎÎñ
+  * @brief          æ¥æ”¶æ•°æ®è§£æä»»åŠ¡
   * @param[in]      pvParameters: NULL
   * @retval         none
   */

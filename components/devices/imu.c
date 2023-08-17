@@ -73,7 +73,7 @@ void UART4_IRQHandler(void)
 	{
 		__HAL_UART_CLEAR_PEFLAG(&huart4);
 	}
-	else if(USART3->ISR & UART_FLAG_IDLE)
+	else if(UART4->ISR & UART_FLAG_IDLE)
 	{
 		static uint16_t this_time_rx_len = 0;
 		__HAL_UART_CLEAR_IDLEFLAG(&huart4);

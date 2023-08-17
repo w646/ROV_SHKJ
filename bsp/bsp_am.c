@@ -22,8 +22,8 @@
 #define AM_DMA_RX_ISR   DMA_LISR_TCIF2  
 
 //快速收发不要用HAL库，太慢，直接操作寄存器
-#define RE_DE_TX() {GPIOA->BSRR=GPIO_PIN_9;}                        //拉高电平
-#define RE_DE_RX() {GPIOA->BRR=(uint32_t)GPIO_PIN_10 << 16;}        //拉低电平
+#define RE_DE_TX() {GPIOA->BSRR=GPIO_PIN_8;}                        //拉高电平
+#define RE_DE_RX() {GPIOA->BSRR=(uint32_t)GPIO_PIN_8 << 16;}        //拉低电平
 
 extern UART_HandleTypeDef huart1;
 extern DMA_HandleTypeDef hdma_usart1_tx;

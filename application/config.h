@@ -1,7 +1,7 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
-#define OS							1					//ÊÇ·ñÔÚÓĞ²Ù×÷ÏµÍ³Çé¿öÏÂÖ´ĞĞ
+#define OS							1					//æ˜¯å¦åœ¨æœ‰æ“ä½œç³»ç»Ÿæƒ…å†µä¸‹æ‰§è¡Œ
 
 
 #if OS

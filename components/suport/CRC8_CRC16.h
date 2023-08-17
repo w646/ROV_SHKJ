@@ -2,11 +2,11 @@
   ****************************(C) COPYRIGHT 2022 ZJU****************************
   * @file       crc8_crc16.c/h
   * @brief      crc8 and crc16 calculate function, verify function, append function.
-  *             crc8ºÍcrc16¼ÆËãº¯Êı,Ğ£Ñéº¯Êı,Ìí¼Óº¯Êı
+  *             crc8å’Œcrc16è®¡ç®—å‡½æ•°,æ ¡éªŒå‡½æ•°,æ·»åŠ å‡½æ•°
   * @note       
   * @history
   *  Version    Date            Author          		Modification
-  *  V1.0.0     Nov-23-2022     HaoLion(ºÂÁÁÁÁ)     1. done
+  *  V1.0.0     Nov-23-2022     HaoLion(éƒäº®äº®)     1. done
   *
   @verbatim
   ==============================================================================
@@ -28,11 +28,11 @@
   * @retval         calculated crc8
   */
 /**
-  * @brief          ¼ÆËãCRC8
-  * @param[in]      pch_message: Êı¾İ
-  * @param[in]      dw_length: Êı¾İºÍĞ£ÑéµÄ³¤¶È
-  * @param[in]      ucCRC8:³õÊ¼CRC8
-  * @retval         ¼ÆËãÍêµÄCRC8
+  * @brief          è®¡ç®—CRC8
+  * @param[in]      pch_message: æ•°æ®
+  * @param[in]      dw_length: æ•°æ®å’Œæ ¡éªŒçš„é•¿åº¦
+  * @param[in]      ucCRC8:åˆå§‹CRC8
+  * @retval         è®¡ç®—å®Œçš„CRC8
   */
 extern uint8_t get_CRC8_check_sum(unsigned char *pchMessage,unsigned int dwLength,unsigned char ucCRC8);
 
@@ -43,10 +43,10 @@ extern uint8_t get_CRC8_check_sum(unsigned char *pchMessage,unsigned int dwLengt
   * @retval         true of false
   */
 /**
-  * @brief          CRC8Ğ£Ñéº¯Êı
-  * @param[in]      pch_message: Êı¾İ
-  * @param[in]      dw_length: Êı¾İºÍĞ£ÑéµÄ³¤¶È
-  * @retval         Õæ»òÕß¼Ù
+  * @brief          CRC8æ ¡éªŒå‡½æ•°
+  * @param[in]      pch_message: æ•°æ®
+  * @param[in]      dw_length: æ•°æ®å’Œæ ¡éªŒçš„é•¿åº¦
+  * @retval         çœŸæˆ–è€…å‡
   */
 extern uint32_t verify_CRC8_check_sum(unsigned char *pchMessage, unsigned int dwLength);
 
@@ -57,9 +57,9 @@ extern uint32_t verify_CRC8_check_sum(unsigned char *pchMessage, unsigned int dw
   * @retval         none
   */
 /**
-  * @brief          Ìí¼ÓCRC8µ½Êı¾İµÄ½áÎ²
-  * @param[in]      pch_message: Êı¾İ
-  * @param[in]      dw_length: Êı¾İºÍĞ£ÑéµÄ³¤¶È
+  * @brief          æ·»åŠ CRC8åˆ°æ•°æ®çš„ç»“å°¾
+  * @param[in]      pch_message: æ•°æ®
+  * @param[in]      dw_length: æ•°æ®å’Œæ ¡éªŒçš„é•¿åº¦
   * @retval         none
   */
 extern void append_CRC8_check_sum(unsigned char *pchMessage, unsigned int dwLength);
@@ -72,11 +72,11 @@ extern void append_CRC8_check_sum(unsigned char *pchMessage, unsigned int dwLeng
   * @retval         calculated crc16
   */
 /**
-  * @brief          ¼ÆËãCRC16
-  * @param[in]      pch_message: Êı¾İ
-  * @param[in]      dw_length: Êı¾İºÍĞ£ÑéµÄ³¤¶È
-  * @param[in]      wCRC:³õÊ¼CRC16
-  * @retval         ¼ÆËãÍêµÄCRC16
+  * @brief          è®¡ç®—CRC16
+  * @param[in]      pch_message: æ•°æ®
+  * @param[in]      dw_length: æ•°æ®å’Œæ ¡éªŒçš„é•¿åº¦
+  * @param[in]      wCRC:åˆå§‹CRC16
+  * @retval         è®¡ç®—å®Œçš„CRC16
   */
 extern uint16_t get_CRC16_check_sum(uint8_t *pchMessage,uint32_t dwLength,uint16_t wCRC);
 
@@ -87,10 +87,10 @@ extern uint16_t get_CRC16_check_sum(uint8_t *pchMessage,uint32_t dwLength,uint16
   * @retval         true of false
   */
 /**
-  * @brief          CRC16Ğ£Ñéº¯Êı
-  * @param[in]      pch_message: Êı¾İ
-  * @param[in]      dw_length: Êı¾İºÍĞ£ÑéµÄ³¤¶È
-  * @retval         Õæ»òÕß¼Ù
+  * @brief          CRC16æ ¡éªŒå‡½æ•°
+  * @param[in]      pch_message: æ•°æ®
+  * @param[in]      dw_length: æ•°æ®å’Œæ ¡éªŒçš„é•¿åº¦
+  * @retval         çœŸæˆ–è€…å‡
   */
 extern uint32_t verify_CRC16_check_sum(uint8_t *pchMessage, uint32_t dwLength);
 
@@ -101,9 +101,9 @@ extern uint32_t verify_CRC16_check_sum(uint8_t *pchMessage, uint32_t dwLength);
   * @retval         none
   */
 /**
-  * @brief          Ìí¼ÓCRC16µ½Êı¾İµÄ½áÎ²
-  * @param[in]      pch_message: Êı¾İ
-  * @param[in]      dw_length: Êı¾İºÍĞ£ÑéµÄ³¤¶È
+  * @brief          æ·»åŠ CRC16åˆ°æ•°æ®çš„ç»“å°¾
+  * @param[in]      pch_message: æ•°æ®
+  * @param[in]      dw_length: æ•°æ®å’Œæ ¡éªŒçš„é•¿åº¦
   * @retval         none
   */
 extern void append_CRC16_check_sum(uint8_t * pchMessage,uint32_t dwLength);
