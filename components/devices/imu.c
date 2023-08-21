@@ -4,7 +4,7 @@
  * @brief     : IMU设备驱动文件
  * @history   :
  *  Version     Date            Author          Note
- *  V1.0.0    2023-08-12       Hao Lion        1. <note>
+ *  V1.0.0    2023-08-12         WPJ        1. <note>
  *******************************************************************************
  * @verbatim :
  *==============================================================================
@@ -28,6 +28,13 @@ extern DMA_HandleTypeDef hdma_uart4_rx;
 static uint8_t imu_rx_buf[2][IMU_FRAME_LENGTH];
 
 uint8_t imu_tx_buf[IMU_CMD_LENGTH]={0};
+typedef enum
+{
+    Goto_Command_Mode   = 0x0006,  //进入命令模式
+    Goto_Streaming_Mode = 0x0007, //进入数据发送模式
+    Save_Setting        = 0x0004, //保存IMU参数设置
+
+}imu_cmd_e;
 
 //IMU  data 
 //九轴数据
@@ -62,6 +69,48 @@ static void imu_data_solve(volatile const uint8_t *imu_frame, IMU_data_t *imu_da
 const IMU_data_t *get_imu_data_point(void)
 {
     return &imu_data;
+}
+
+/**
+  * @brief          计算前n字节累加校验和
+  * @param[in]      LRC_message: 数据
+  * @param[in]      LRC_length: 数据和校验的长度
+  * @retval         计算完的校验和
+  */
+static uint8_t get_LRC_sum(uint8_t *LRC_message, uint16_t LRC_length)
+{
+    uint16_t check_sum = 0;
+    uint16_t len = LRC_length;
+    if (LRC_message == NULL)
+    {
+        return 0XFF;
+    }
+    while(--len)
+    {
+        check_sum += *LRC_message++;
+    }
+    return check_sum;
+}
+
+/**
+  * @brief          LRC校验
+  * @param[in]      LRC_message: 数据
+  * @param[in]      LRC_length: 数据的长度
+  * @retval         计算完的校验和
+  */
+static bool_t LRC_check(uint8_t *data_message, uint32_t LRC_length)
+{
+  uint16_t temp = 0;
+  uint16_t len = LRC_length;
+  temp = get_LRC_sum(data_message, len-4);
+  if(data_message[len-4] == (temp & 0xFF) && data_message[len-3] == (temp >> 8))
+  {
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
 }
 
 /**
@@ -162,4 +211,82 @@ static void imu_data_solve(volatile const uint8_t *imu_frame, IMU_data_t *imu_da
         return;
     }
     //TODO:进行IMU数据解析
+    if (imu_frame[0] == 0x3A && imu_frame[1] == 0x01 && imu_frame[2] == 0x00 && LRC_check(imu_frame, IMU_DATA_LENGTH))
+    {
+      imu_data->Acc_x = Byte_to_Float(imu_frame[23]);
+      imu_data->Acc_y = Byte_to_Float(imu_frame[27]);
+      imu_data->Acc_z = Byte_to_Float(imu_frame[31]);
+
+      imu_data->Gyrol_x = Byte_to_Float(imu_frame[83]);
+      imu_data->Gyrol_y = Byte_to_Float(imu_frame[87]);
+      imu_data->Gyrol_z = Byte_to_Float(imu_frame[91]);
+
+      imu_data->Angle_x = Byte_to_Float(imu_frame[147]);
+      imu_data->Angle_y = Byte_to_Float(imu_frame[151]);
+      imu_data->Angle_z = Byte_to_Float(imu_frame[155]);
+    }
+}
+
+
+
+/**
+* @brief     发送内容打包
+* @param[in] cmd_type:  命令内容ID
+* @retval			返回要发送的数据大小
+*/
+static uint16_t send_imu_pack(uint8_t cmd_type, uint8_t *p_data, uint16_t len)
+{
+
+  memset(imu_tx_buf, 0, sizeof(imu_tx_buf));
+  uint16_t send_len = 9 + len;
+  imu_tx_buf[0] = IMU_HEAD_SOF;
+  imu_tx_buf[1] = IMU_ID & 0xFF;
+  imu_tx_buf[2] = IMU_ID >> 8;
+  imu_tx_buf[3] = cmd_type & 0xFF;
+  imu_tx_buf[4] = cmd_type;
+  imu_tx_buf[5] = len & 0xFF;
+  imu_tx_buf[6] = len >> 8;
+  if(len == 0)
+  {
+    imu_tx_buf[7] = get_LRC_sum(imu_tx_buf, send_len-4) & 0xFF;
+    imu_tx_buf[8] = get_LRC_sum(imu_tx_buf, send_len-4) >> 8;
+    send_len = send_len + 2;
+  }
+  else
+  {
+    memcpy(&imu_tx_buf[7], p_data, len);
+  }
+  imu_tx_buf[send_len-4] = get_LRC_sum(imu_tx_buf, send_len-4) & 0xFF;
+  imu_tx_buf[send_len-3] = get_LRC_sum(imu_tx_buf, send_len-4) >> 8;
+  imu_tx_buf[send_len-2] = IMU_END_SOF & 0xFF;
+  imu_tx_buf[send_len-1] = IMU_END_SOF >> 8;
+  uart7_tx_dma_enable(imu_tx_buf, send_len);
+  return send_len;
+}
+
+/**
+ * @brief 进入IMU命令模式
+ * @retval none
+*/
+void GOTO_IMU_Command_Mode(void)
+{ 
+  send_imu_pack(Goto_Command_Mode, NULL, 0);
+}
+
+/**
+ * @brief 进入IMU数据流发送
+ * @retval none
+*/
+void GOTO_IMU_Streaming_Mode(void)
+{ 
+  send_imu_pack(Goto_Streaming_Mode, NULL, 0);
+}
+
+/**
+ * @brief IMU参数保存
+ * @retval none
+*/
+void GOTO_IMU_Save_Setting(void)
+{ 
+  send_imu_pack(Save_Setting, NULL, 0);
 }

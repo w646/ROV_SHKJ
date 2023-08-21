@@ -19,6 +19,7 @@
 #include "depth.h"
 #include "bsp_depth.h"
 #include "main.h"
+#include "CRC8_CRC16.h"
 
 //深度计通信串口
 extern UART_HandleTypeDef huart6;
@@ -28,7 +29,7 @@ extern DMA_HandleTypeDef hdma_usart6_rx;
 //接收原始数据，为n个字节，给了2*n个字节长度，防止DMA传输越界
 static uint8_t depth_rx_buf[2][DEPTH_FRAME_LENGTH];
 
-uint8_t depth_tx_buf[8];// {0x01,0x03,0x00,0x02,0x00,0x02,0x65,0xCB,   //读取压力传感器1的值
+uint8_t depth_tx_buf[DEPTH_CMD_LENGTH];// {0x01,0x03,0x00,0x02,0x00,0x02,0x65,0xCB,   //读取压力传感器1的值
                         // 0x01,0x03,0x00,0x04,0x00,0x02,0x85,0xCA};  //读取压力传感器2的值
 typedef enum
 {
@@ -62,8 +63,18 @@ const DEPTH_data_t *get_depth_data_point(void)
   * @brief This function handles USART6 global interrupt.
   */
 void USART6_IRQHandler(void)
-{ 
-	if(huart6.Instance->ISR & UART_FLAG_RXNE)//接收到数据
+{  
+   if(huart6.Instance->ISR & UART_FLAG_TC) //串口一帧数据发送完成
+	{
+    if(((DMA_TypeDef   *)hdma_usart6_rx.Instance)->HISR & DEPTH_DMA_TX_ISR) //发送DMA数据传输完成
+    {
+      //RS485切换为接收模式
+		  DEPTH_RE_DE_RX();
+    }
+     __HAL_UART_CLEAR_FLAG(&huart6,UART_FLAG_TC); //清除数据发送完成标志位       
+  }
+
+	else if(huart6.Instance->ISR & UART_FLAG_RXNE)//接收到数据
 	{
 		__HAL_UART_CLEAR_PEFLAG(&huart6);
 	}
@@ -92,9 +103,8 @@ void USART6_IRQHandler(void)
             //set memory buffer 1
             //设定缓冲区1
             ((DMA_Stream_TypeDef   *)hdma_usart6_rx.Instance)->CR |= DMA_SxCR_CT;
-            
-            //使能RS485接收
-            RE_DE_RX();
+
+
             //enable DMA
             //使能DMA
             __HAL_DMA_ENABLE(&hdma_usart6_rx);
@@ -123,9 +133,8 @@ void USART6_IRQHandler(void)
             //set memory buffer 0
             //设定缓冲区0
             ((DMA_Stream_TypeDef   *)hdma_usart6_rx.Instance)->CR &= ~(DMA_SxCR_CT);
-            
-            //使能RS485接收
-            RE_DE_RX();
+
+
             //enable DMA
             //使能DMA
             __HAL_DMA_ENABLE(&hdma_usart6_rx);
@@ -137,6 +146,48 @@ void USART6_IRQHandler(void)
 		
 	}
 	
+}
+
+
+/**
+  * @brief          DEPTH protocol resolution
+  * @param[in]      depth_buf: raw data point
+  * @param[in]     depth_data: IMU data struct point
+  * @retval         none
+  */
+/**
+  * @brief          深度计协议解析
+  * @param[in]      depth_frame: 原生数据指针
+  * @param[in]     depth_data: 深度计数据指针
+  * @retval         none
+  */
+void depth_data_solve(volatile const uint8_t *depth_frame, DEPTH_data_t *depth_data)
+{
+  static int i = 5;
+  static float sum = 0;
+	/*数据校验*/
+    if (depth_frame == NULL || depth_data == NULL)
+    {
+        return;
+    }
+    //TODO:进行深度计数据解析
+    else if (depth_frame[0] == 0x01 && depth_frame[1] == 0x03 &&  depth_frame[2] == 0x04 && verify_CRC16_check_sum((uint8_t *)depth_frame, DEPTH_DATA_LENGTH))
+    {
+      if(atmosphere_flag > 0) // 深度前5次读取的气压值求平均作为大气压参考值
+      {
+        sum += Byte_to_Float((uint8_t *)&depth_frame[3]);
+        atmosphere_flag--;
+        if (atmosphere_flag == 0)
+        {
+          depth_data->atmosphere = sum/5.0f;
+        }
+      }
+      else
+      {
+        depth_data->Pressure1 = Byte_to_Float((uint8_t *)&depth_frame[3]);
+        depth_data->depth_result = (depth_data->Pressure1 - depth_data->atmosphere) * 100000.0f / (g * WATER_DENSITY);
+      }
+    }
 }
 
 
@@ -161,7 +212,7 @@ float Byte_to_Float(uint8_t *four_byte)
 * @param[in] Reg_num: 读取寄存器数量
 * @retval			返回要发送的数据大小
 */
-static uint16_t send_depth_pack(uint16_t stdAdd, uint16_t Reg_num)
+uint16_t send_depth_pack(uint16_t stdAdd, uint16_t Reg_num)
 {
     memset(depth_tx_buf, 0, sizeof(depth_tx_buf));
     uint16_t send_len = 8;
@@ -184,7 +235,6 @@ static uint16_t send_depth_pack(uint16_t stdAdd, uint16_t Reg_num)
 */
 void get_pressure1_cmd(void)
 {
-  RE_DE_TX();
   send_servo_pack(P1_stAdd, 2);
 }
 
@@ -196,47 +246,5 @@ void get_pressure1_cmd(void)
 */
 void get_pressure2_cmd(void)
 {
-  RE_DE_TX();
   send_servo_pack(P2_stAdd, 2);
-}
-
-/**
-  * @brief          DEPTH protocol resolution
-  * @param[in]      depth_buf: raw data point
-  * @param[in]     depth_data: IMU data struct point
-  * @retval         none
-  */
-/**
-  * @brief          深度计协议解析
-  * @param[in]      depth_frame: 原生数据指针
-  * @param[in]     depth_data: 深度计数据指针
-  * @retval         none
-  */
-static void depth_data_solve(volatile const uint8_t *depth_frame, DEPTH_data_t *depth_data)
-{
-  static int i = 5;
-  static float sum = 0;
-	/*数据校验*/
-    if (depth_frame == NULL || depth_data == NULL)
-    {
-        return;
-    }
-    //TODO:进行深度计数据解析
-    else if (depth_frame[0] == 0x01 && depth_frame[1] == 0x03 &&  depth_frame[2] == 0x04 && verify_CRC16_check_sum(depth_frame, DEPTH_DATA_LENGTH))
-    {
-      if(atmosphere_flag > 0) // 深度前5次读取的气压值求平均作为大气压参考值
-      {
-        sum += Byte_to_Float(&depth_frame[3]);
-        atmosphere_flag--;
-        if (atmosphere_flag == 0)
-        {
-          depth_data->atmosphere = sum/5.0f;
-        }
-      }
-      else
-      {
-        depth_data->Pressure1 = Byte_to_Float(&depth_frame[3]);
-        depth_data->depth_result = (depth_data->Pressure1 - depth_data->atmosphere) * 100000.0f / (g * WATER_DENSITY);
-      }
-    }
 }

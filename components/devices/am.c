@@ -80,14 +80,12 @@ void USART1_IRQHandler(void)
             //设定缓冲区1
             ((DMA_Stream_TypeDef   *)hdma_usart1_rx.Instance)->CR |= DMA_SxCR_CT;
             
-            //使能RS485接收
-            RE_DE_RX();
             //enable DMA
             //使能DMA
             __HAL_DMA_ENABLE(&hdma_usart1_rx);
             if(this_time_rx_len == AM_DATA_LENGTH)
             {
-                depth_data_solve(am_rx_buf[0], &am_data);
+                am_data_solve(am_rx_buf[0], &am_data);
             } 
                
 		}
@@ -111,14 +109,12 @@ void USART1_IRQHandler(void)
             //设定缓冲区0
             ((DMA_Stream_TypeDef   *)hdma_usart1_rx.Instance)->CR &= ~(DMA_SxCR_CT);
             
-            //使能RS485接收
-            RE_DE_RX();
             //enable DMA
             //使能DMA
             __HAL_DMA_ENABLE(&hdma_usart1_rx);
             if(this_time_rx_len == AM_DATA_LENGTH)
             {
-                depth_data_solve(am_rx_buf[1], &am_data);
+                am_data_solve(am_rx_buf[1], &am_data);
             }     
         }
 	}
@@ -132,7 +128,7 @@ void USART1_IRQHandler(void)
   * @param[in]     am_data: 高度计数据指针
   * @retval         none
   */
-static void depth_data_solve(volatile const uint8_t *am_frame, AM_data_t *am_data)
+void am_data_solve(volatile const uint8_t *am_frame, AM_data_t *am_data)
 {
 	/*数据校验*/
     if (am_frame == NULL || am_data == NULL)

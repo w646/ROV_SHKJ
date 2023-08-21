@@ -18,13 +18,6 @@
 #include "bsp_depth.h"
 #include "main.h"
 
-#define DEPTH_DMA_TX_ISR   DMA_HISR_TCIF6
-#define DEPTH_DMA_RX_ISR   DMA_LISR_TCIF1  
-
-//快速收发不要用HAL库，太慢，直接操作寄存器
-#define RE_DE_TX() {GPIOC->BSRR=GPIO_PIN_8;}                       //拉高电平
-#define RE_DE_RX() {GPIOC->BSRR=(uint32_t)GPIO_PIN_8 << 16;}        //拉低电平
-
 extern UART_HandleTypeDef huart6;
 extern DMA_HandleTypeDef hdma_usart6_tx;
 extern DMA_HandleTypeDef hdma_usart6_rx;
@@ -68,6 +61,8 @@ void usart6_init(uint8_t *rx1_buf, uint8_t *rx2_buf, uint16_t dma_buf_num)
     //使能双缓冲区
     SET_BIT(((DMA_Stream_TypeDef   *)hdma_usart6_rx.Instance)->CR, DMA_SxCR_DBM);
 
+    //使能RS485接收
+    DEPTH_RE_DE_RX();
     //enable DMA
     //使能usart6_rx的DMA
     __HAL_DMA_ENABLE(&hdma_usart6_rx);
@@ -97,11 +92,13 @@ void usart6_tx_dma_enable(uint8_t *data, uint16_t len)
     {
         __HAL_DMA_DISABLE(&hdma_usart6_tx);
     }
-    //清除发送中断标志物位
+    //清除DMA发送中断标志物位
     __HAL_DMA_CLEAR_FLAG(&hdma_usart6_tx, DEPTH_DMA_TX_ISR);
 
     ((DMA_Stream_TypeDef   *)hdma_usart6_tx.Instance)->M0AR = (uint32_t)(data);
     __HAL_DMA_SET_COUNTER(&hdma_usart6_tx, len);
 
+    //使能RS485发送
+    DEPTH_RE_DE_TX();
     __HAL_DMA_ENABLE(&hdma_usart6_tx);
 }

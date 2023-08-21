@@ -18,13 +18,6 @@
 #include "bsp_am.h"
 #include "main.h"
 
-#define AM_DMA_TX_ISR   DMA_HISR_TCIF7
-#define AM_DMA_RX_ISR   DMA_LISR_TCIF2  
-
-//快速收发不要用HAL库，太慢，直接操作寄存器
-#define RE_DE_TX() {GPIOA->BSRR=GPIO_PIN_8;}                        //拉高电平
-#define RE_DE_RX() {GPIOA->BSRR=(uint32_t)GPIO_PIN_8 << 16;}        //拉低电平
-
 extern UART_HandleTypeDef huart1;
 extern DMA_HandleTypeDef hdma_usart1_tx;
 extern DMA_HandleTypeDef hdma_usart1_rx;
@@ -68,6 +61,8 @@ void usart1_init(uint8_t *rx1_buf, uint8_t *rx2_buf, uint16_t dma_buf_num)
     //使能双缓冲区
     SET_BIT(((DMA_Stream_TypeDef   *)hdma_usart1_rx.Instance)->CR, DMA_SxCR_DBM);
 
+    //使能RS485接收
+    AM_RE_DE_RX();
     //enable DMA
     //使能DMA
     __HAL_DMA_ENABLE(&hdma_usart1_rx);
